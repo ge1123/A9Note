@@ -1,0 +1,418 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AZ-104 · Azure Storage 實作筆記</title><meta name="description" content="AZ-104 Azure Storage 實作筆記"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23006cce'/%3E%3Cpath d='M8 10h16v4H8zm0 8h16v4H8z' fill='white'/%3E%3C/svg%3E"><style>
+:root{color-scheme:light;--ink:#172b43;--muted:#60748a;--blue:#006cce;--line:#dce5ee;--paper:#fff;--bg:#f3f6fa}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:32px}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif}a{color:inherit}.layout{max-width:1440px;margin:auto;display:grid;grid-template-columns:280px minmax(0,1fr);gap:56px;padding:48px 48px 100px}aside{position:sticky;top:40px;align-self:start}.brand{color:var(--blue);font-size:14px;letter-spacing:.14em;font-weight:750}.title{font-size:28px;line-height:1.35;margin:12px 0 32px;letter-spacing:-.03em}nav{display:grid;gap:6px}nav a{text-decoration:none;display:flex;align-items:baseline;gap:12px;padding:12px 10px;border-radius:6px;line-height:1.6;font-size:14px;border-left:2px solid transparent}nav a:hover,nav a:focus-visible{background:#e5eef9;color:var(--blue);border-left-color:var(--blue)}nav span{font:12px ui-monospace,monospace;color:var(--muted)}main{min-width:0;background:white;border:1px solid var(--line);border-top:4px solid var(--blue);padding:40px 48px 60px;box-shadow:0 8px 32px #1b355008}.flow{white-space:pre-wrap;text-align:center;padding:24px;background:#edf5ff;border:1px solid #d3e6fc;border-radius:8px;font-size:16px;line-height:1.85;color:#174975}h2{font-size:25px;line-height:1.5;letter-spacing:-.025em;margin:52px 0 26px;padding-bottom:14px;border-bottom:1px solid var(--line)}h3{font-size:18px;line-height:1.7;margin:32px 0 12px;color:#123b64;overflow-wrap:anywhere}p{white-space:pre-wrap;margin:12px 0 18px;overflow-wrap:anywhere}pre{background:#11243a;color:#e0edfa;padding:22px 24px;border-radius:8px;overflow:auto;font:14px/1.8 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:2;margin:18px 0 26px;border:1px solid #213951}code{font:inherit}figure{margin:24px 0 36px;padding:8px;border:1px solid var(--line);border-radius:8px;background:#f8fafc}img{display:block;max-width:100%;height:auto;margin:auto}hr{border:0;border-top:1px solid var(--line);margin:44px 0}a:focus-visible{outline:3px solid #006cce;outline-offset:3px}.skip{position:absolute;left:16px;top:-100px;background:white;padding:10px;z-index:2}.skip:focus{top:12px}@media(max-width:1050px){.layout{padding:28px;gap:28px;grid-template-columns:220px minmax(0,1fr)}main{padding:28px}.title{font-size:24px}}@media(max-width:760px){.layout{display:block;padding:20px 14px 50px}aside{position:static;margin-bottom:24px}.title{margin:8px 0 16px}nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}nav a{padding:8px;font-size:14px}main{padding:22px 16px}h2{font-size:22px}pre{padding:18px 16px}h3{font-size:18px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}@media print{body{background:white}.layout{display:block;padding:0}aside,.skip{display:none}main{border:0;box-shadow:none;padding:0}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f6fa;color:#172b43;break-inside:avoid}img{max-height:80vh}h2,h3{break-after:avoid}}
+
+aside{max-height:calc(100vh - 80px);overflow-y:auto;padding-right:6px}.title{font-size:25px;margin-bottom:28px}.topic-label{font-size:15px;font-weight:700;border-top:1px solid var(--line);padding:20px 10px 12px;color:var(--blue)}nav{display:block}.nav-group{margin:4px 0}.nav-group summary{cursor:pointer;list-style:none;display:flex;gap:10px;align-items:baseline;font-size:14px;padding:12px 10px;line-height:1.6;border-radius:6px}.nav-group summary::-webkit-details-marker{display:none}.nav-group summary::after{content:'+';margin-left:auto;flex-shrink:0;color:var(--blue)}.nav-group[open]>summary{background:#e5eef9;color:var(--blue)}.nav-group[open]>summary::after{content:'−'}.subnav{margin:8px 0 14px 17px;padding-left:10px;border-left:1px solid #c8d8e8}.subnav a{display:block;font-size:14px;padding:7px 9px;overflow-wrap:anywhere}.subnav a[aria-current="location"]{background:#e5eef9;color:var(--blue);border-left-color:var(--blue)}.subnav .section-link{color:var(--muted)}summary:focus-visible,button:focus-visible{outline:3px solid var(--blue);outline-offset:3px}.flow-panel{border:1px solid #d3e6fc;border-radius:8px;background:#f4f8ff;margin-bottom:30px}.flow-panel>summary{cursor:pointer;padding:14px 18px;font-weight:650;color:#174975}.flow-panel>summary span{font-weight:400;color:var(--muted);font-size:14px;margin-left:10px}.flow-steps{list-style:none;counter-reset:flow;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0;padding:8px 18px 18px}.flow-steps li{counter-increment:flow;background:white;border:1px solid #dce7f4;padding:12px;font-size:14px;line-height:1.6;overflow-wrap:anywhere;border-radius:6px}.flow-steps li::before{content:counter(flow,decimal-leading-zero);display:block;font:12px/1.5 ui-monospace,monospace;color:var(--blue);margin-bottom:6px}.code-block{margin:18px 0 26px;border-radius:8px;overflow:hidden;background:#11243a;border:1px solid #213951}.code-toolbar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid #314458;color:#a9bdd2;font:12px/1.5 ui-monospace,monospace}.copy-button{font:14px/1.5 inherit;font-family:inherit;font-size:14px;color:#e0edfa;background:#263e58;border:1px solid #486079;border-radius:5px;padding:5px 12px;cursor:pointer;min-height:34px}.copy-button:hover{background:#365674}.code-block pre{margin:0;border:0;border-radius:0}.copy-status{position:fixed;bottom:24px;right:24px;z-index:5;background:#173b60;color:white;padding:10px 18px;border-radius:8px;box-shadow:0 4px 24px #11243a22}.copy-status:empty{display:none}@media(max-width:760px){aside{max-height:none;overflow:visible}.flow-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.title{font-size:24px;margin-bottom:12px}.topic-label{padding-top:12px}}@media(max-width:420px){.flow-steps{grid-template-columns:1fr}}@media print{.code-toolbar,.copy-status{display:none}.code-block{border:0;background:none}.flow-panel{display:none}}
+
+.intro>h2{margin-top:0}.intro-number{font:14px ui-monospace,monospace;color:var(--blue);margin-right:8px}.flow-lines{padding:18px 22px;border-left:3px solid var(--blue);background:#f4f8ff;border-radius:0 6px 6px 0}.flow-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 0}.flow-row+.flow-row{margin-top:14px}.flow-item{display:inline-flex;align-items:baseline;gap:12px;max-width:100%;font-size:16px;line-height:1.9}.flow-item>span:first-child{overflow-wrap:anywhere}.flow-arrow{color:var(--blue);padding-right:12px;flex-shrink:0}.intro-link{margin:4px 0}.intro-link[aria-current="location"]{background:#e5eef9;color:var(--blue);border-left-color:var(--blue)}@media(max-width:760px){.flow-lines{padding:14px 16px}.flow-row+.flow-row{margin-top:12px}}@media print{.flow-lines{background:white}}
+
+.image-open{display:block;width:100%;padding:0;border:0;background:transparent;cursor:zoom-in;border-radius:4px}.image-open:focus-visible{outline:3px solid var(--blue);outline-offset:4px}.image-dialog{width:96vw;max-width:1800px;max-height:94vh;padding:0;border:1px solid #52677d;border-radius:10px;background:#fff;color:var(--ink);box-shadow:0 20px 90px #0006}.image-dialog::backdrop{background:rgba(9,22,38,.8)}.image-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 18px;border-bottom:1px solid var(--line)}.image-dialog-header h2{font-size:16px;line-height:1.5;margin:0;padding:0;border:0}.image-close{font:inherit;font-size:14px;min-height:40px;padding:6px 16px;background:#edf5ff;border:1px solid #b8cde5;border-radius:6px;color:#174975;cursor:pointer}.image-dialog-body{overflow:auto;max-height:calc(94vh - 76px);padding:12px}.image-dialog-body img{width:100%;max-width:none;height:auto;margin:0}body.image-modal-open{overflow:hidden}@media print{.image-dialog{display:none}}
+.home-link{display:inline-block;color:var(--blue);font-size:14px;text-decoration:none;margin-bottom:20px}.home-link:hover{text-decoration:underline}
+.flow-stage{display:grid;grid-template-columns:3em minmax(0,1fr);gap:16px;align-items:baseline}.flow-stage+.flow-stage{border-top:1px solid #d3e6fc;margin-top:14px;padding-top:14px}.flow-stage strong{color:var(--blue)}.flow-stage div{overflow-wrap:anywhere}.note{font-size:14px;color:#425b73;background:#f4f8ff;border-left:3px solid #b8cde5;padding:12px 16px}.note a{color:var(--blue)}.concept-diagram{background:#f4f8ff;color:#174975;border-color:#d3e6fc}.reference-table{width:100%;border-collapse:collapse;margin:18px 0 22px;font-size:15px}.reference-table th,.reference-table td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line)}.reference-table thead{background:#edf5ff;color:#174975}.reference-table tbody th{font-weight:500}.explanation{padding-left:24px}.explanation li{margin:8px 0;overflow-wrap:anywhere}.brand{margin-bottom:20px}@media(max-width:420px){.flow-stage{grid-template-columns:1fr;gap:4px}.reference-table th,.reference-table td{padding:8px}}
+</style></head><body><a class="skip" href="#content">跳至內容</a><div class="layout"><aside><a class="home-link" href="../index.html">← 所有主題</a><div class="brand">AZ-104</div><div class="topic-label">Azure Storage</div><nav aria-label="章節導覽"><a class="intro-link" href="#section-0"><span>00</span>導讀</a><details class="nav-group"><summary><span>01</span>建置 blob 並 upload</summary><div class="subnav"><a class="section-link" href="#section-1">章節開頭</a><a href="#step-1">1. az login</a><a href="#step-2">2. az group create </a><a href="#step-3">3. 建立 resource group 層級的 CanNotDelete lock</a><a href="#step-4">4. 建立低成本的 Standard LRS StorageV2 account</a><a href="#step-5">5. 用 Microsoft Entra ID 存取 Blob，先替自己加入 Storage 資料角色，再建立私人 container。</a><a href="#step-6">6. 上傳一個小型測試 Blob。範圍只在此 container，只有少量交易與幾十 bytes 儲存成本</a></div></details><details class="nav-group"><summary><span>02</span>管理</summary><div class="subnav"><a class="section-link" href="#section-2">章節開頭</a><a href="#step-7">7. User Delegation SAS</a><a href="#step-8">8. Blob Lifecycle Management</a><a href="#step-9">9. 設定 Blob 資料保護</a><a href="#step-10">10. 測試 Blob Soft Delete</a><a href="#step-11">11. 建立 Azure Files 的 SMB file share</a><a href="#step-12">12. 把 Azure Files 資料權限限定在 share1，然後使用 Entra ID 上傳檔案</a><a href="#step-13">13. Azure Files 的「時間點復原」</a></div></details><details class="nav-group"><summary><span>03</span>Firewall</summary><div class="subnav"><a class="section-link" href="#section-3">章節開頭</a><a href="#step-14">14. 建立 firewall, 並封鎖</a><a href="#step-15">15. IP allowlist</a></div></details><details class="nav-group"><summary><span>04</span>停用 Shared Key，強制使用 Microsoft Entra ID／RBAC</summary><div class="subnav"><a class="section-link" href="#section-4">章節開頭</a><a href="#step-16">16. 避免使用權限過大的 Storage account key</a></div></details><details class="nav-group"><summary><span>05</span>Azure Policy</summary><div class="subnav"><a class="section-link" href="#section-5">章節開頭</a><a href="#step-17">17. 使用 ARM REST API 建立 Policy Assignment</a><a href="#step-18">18. policy 評估</a><a href="#step-19">19. AzCopy</a><a href="#step-20">20. Storage redundancy</a></div></details></nav></aside><main id="content"><section class="intro" aria-labelledby="section-0"><h2 id="section-0"> 導讀</h2><div class="flow-lines" aria-label="建置流程"><div class="flow-stage"><strong>登入</strong><div>az login → 確認 tenant / subscription</div></div><div class="flow-stage"><strong>建置</strong><div>建立 Resource Group → 建立 CanNotDelete 管理鎖 → 註冊 Microsoft.Storage → 建立 StorageV2 / Standard_LRS</div></div><div class="flow-stage"><strong>授權</strong><div>指派 Storage Blob Data Contributor → 以 Entra ID 建立私人 container</div></div><div class="flow-stage"><strong>上傳</strong><div>上傳測試 Blob → 列出 Blob</div></div></div></section><h2 id="section-1">建置 blob 並 upload</h2><h3 id="step-1">1. az login</h3><p>互動式登入；瀏覽器會開啟並要求 MFA</p><p class="note"><strong>MFA：</strong>登入時，不只靠「密碼」，還要再用另一種方式證明你是本人。</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az login
+</code></pre></div><h3 id="step-2">2. az group create </h3><p>建立一個空的 lab resource group。這會改變目前 az-104 subscription，但 resource group 本身不計費；eastasia 只保存 resource group 的中繼資料位置，不限制未來資源必須部署在同一區域。</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>LAB_RG=&quot;rg-az104-foundation-lab&quot;
+LAB_LOCATION=&quot;eastasia&quot;
+
+az group create \
+  --subscription &quot;az-104&quot; \
+  --name &quot;$LAB_RG&quot; \
+  --location &quot;$LAB_LOCATION&quot; \
+  --tags purpose=az104-learning environment=lab \
+  --query &quot;{Name:name, Location:location, State:properties.provisioningState, Tags:tags}&quot; \
+  --output yaml
+</code></pre></div><h3 id="step-3">3. 建立 resource group 層級的 CanNotDelete lock</h3><p>影響範圍是整個 rg-az104-foundation-lab；不產生成本、允許修改，但阻止刪除，且會向下套用到之後建立的資源。</p><table class="reference-table"><thead><tr><th scope="col">Lock</th><th scope="col">意思</th></tr></thead><tbody><tr><td><code>CanNotDelete</code></td><td>可以修改，但不能刪除</td></tr><tr><td><code>ReadOnly</code></td><td>只能讀取，不能修改，也不能刪除</td></tr></tbody></table><p class="note">管理鎖適用於控制平面，不會直接阻止 Blob 等資料平面的讀寫或刪除。<a href="https://learn.microsoft.com/en-us/azure/azure-resource-manager/management/lock-resources">官方說明</a></p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>LAB_RG=&quot;rg-az104-foundation-lab&quot;
+LOCK_NAME=&quot;lock-cannot-delete&quot;
+
+az group lock create \
+  --subscription &quot;az-104&quot; \
+  --resource-group &quot;$LAB_RG&quot; \
+  --name &quot;$LOCK_NAME&quot; \
+  --lock-type CanNotDelete \
+  --notes &quot;AZ-104 governance lab; remove before cleanup&quot; \
+  --query &quot;{Name:name, Level:level, Notes:notes}&quot; \
+  --output yaml
+</code></pre></div><figure><button type="button" class="image-open" aria-label="放大圖片 1" aria-haspopup="dialog"><img src="../assets/images/azure-storage/azure_storage_01.png" alt="alt text" loading="lazy"></button></figure><h3 id="step-4">4. 建立低成本的 Standard LRS StorageV2 account</h3><p>它會繼承 resource group 的 CanNotDelete lock。計費依容量、交易及傳輸量計算；目前不放資料，成本通常極低，但不是保證零成本。</p><p>Storage Account 是 Azure 儲存服務的最外層資源，建立後依需求使用下列服務。</p><pre class="concept-diagram" aria-label="Storage Account 服務結構">Storage Account
+├─ Blob Storage   ≈ AWS S3
+├─ Azure Files
+├─ Queue Storage
+└─ Table Storage</pre><p>先向 azure 註冊資源, 需等候一段時間</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az provider register \
+  --subscription &quot;az-104&quot; \
+  --namespace Microsoft.Storage \
+  --wait
+</code></pre></div><p>建立 storage</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az storage account create \
+  --subscription &quot;az-104&quot; \
+  --resource-group &quot;$LAB_RG&quot; \
+  --name &quot;$STORAGE_ACCOUNT&quot; \
+  --location &quot;$LAB_LOCATION&quot; \
+  --kind StorageV2 \
+  --sku Standard_LRS \
+  --access-tier Hot \
+  --https-only true \
+  --min-tls-version TLS1_2 \
+  --allow-blob-public-access false \
+  --allow-shared-key-access true \
+  --public-network-access Enabled \
+  --tags purpose=az104-learning environment=lab \
+  --output none
+</code></pre></div><h3 id="step-5">5. 用 Microsoft Entra ID 存取 Blob，先替自己加入 Storage 資料角色，再建立私人 container。</h3><ol class="explanation"><li>建立角色指派：<code>az role assignment create</code>，指定 <code>scope</code>（此例為 Storage Account）。</li><li>建立容器：<code>az storage container create</code>。</li></ol><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>LAB_RG=&quot;rg-az104-foundation-lab&quot;
+STORAGE_ACCOUNT=&quot;staz104lab002d36&quot;   # 若名稱不同請修改
+CONTAINER_NAME=&quot;private-lab&quot;
+
+ACCOUNT_ID=$(az storage account show \
+  --subscription &quot;az-104&quot; \
+  --resource-group &quot;$LAB_RG&quot; \
+  --name &quot;$STORAGE_ACCOUNT&quot; \
+  --query id \
+  --output tsv)
+
+USER_ID=$(az ad signed-in-user show \
+  --query id \
+  --output tsv)
+</code></pre></div><p>建立 role</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az role assignment create \
+  --assignee-object-id &quot;$USER_ID&quot; \
+  --assignee-principal-type User \
+  --role &quot;Storage Blob Data Contributor&quot; \
+  --scope &quot;$ACCOUNT_ID&quot; \
+  --output table
+</code></pre></div><p>建立 container</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az storage container create \
+  --account-name &quot;staz104lab002d36&quot; \
+  --name &quot;private-lab&quot; \
+  --auth-mode login \
+  --public-access off \
+  --output table
+</code></pre></div><h3 id="step-6">6. 上傳一個小型測試 Blob。範圍只在此 container，只有少量交易與幾十 bytes 儲存成本</h3><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>printf &#x27;AZ-104 Blob lab\n&#x27; &gt; /tmp/az104-blob-lab.txt
+
+az storage blob upload \
+  --account-name &quot;staz104lab002d36&quot; \
+  --container-name &quot;private-lab&quot; \
+  --name &quot;az104-blob-lab.txt&quot; \
+  --file &quot;/tmp/az104-blob-lab.txt&quot; \
+  --auth-mode login \
+  --overwrite true \
+  --output table
+</code></pre></div><figure><button type="button" class="image-open" aria-label="放大圖片 2" aria-haspopup="dialog"><img src="../assets/images/azure-storage/azure_storage_02.png" alt="alt text" loading="lazy"></button></figure><hr><h2 id="section-2">管理</h2><h3 id="step-7">7. User Delegation SAS</h3><p>Blob container 設為 private，因此不帶授權資訊的匿名請求無法讀取 Blob。
+登入的 Entra 使用者可以產生短效、唯讀、僅限 HTTPS 的 User Delegation SAS。</p><p class="note"><strong>SAS：</strong>有期限、有限權限的臨時存取憑證。拿到這個連結的人，可以在 SAS 規定的範圍內存取。</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>BLOB_URL=&quot;https://staz104lab002d36.blob.core.windows.net/private-lab/az104-blob-lab.txt&quot;
+
+curl --silent --show-error &quot;$BLOB_URL&quot;
+
+EXPIRY=$(date -u -v+15M &#x27;+%Y-%m-%dT%H:%MZ&#x27;)
+
+SAS_URL=$(az storage blob generate-sas \
+  --account-name &quot;staz104lab002d36&quot; \
+  --container-name &quot;private-lab&quot; \
+  --name &quot;az104-blob-lab.txt&quot; \
+  --permissions r \
+  --expiry &quot;$EXPIRY&quot; \
+  --https-only \
+  --auth-mode login \
+  --as-user \
+  --full-uri \
+  --output tsv)
+
+curl --fail \
+  --silent \
+  --show-error \
+  &quot;$SAS_URL&quot;
+
+unset SAS_URL EXPIRY
+</code></pre></div><h3 id="step-8">8. Blob Lifecycle Management</h3><table class="reference-table tier-table"><thead><tr><th scope="col">層級／動作</th><th scope="col">儲存成本</th><th scope="col">讀取成本</th></tr></thead><tbody><tr><th scope="row">Hot</th><td>高</td><td>低</td></tr><tr><th scope="row">↓ Cool</th><td>↓</td><td>↑</td></tr><tr><th scope="row">↓ Cold</th><td>↓</td><td>↑</td></tr><tr><th scope="row">↓ Archive</th><td>低</td><td>高</td></tr><tr><th scope="row">↓ Delete</th><td>0*</td><td>—</td></tr></tbody></table><p class="note">成本為相對趨勢；Archive 需先解除封存才能讀取。Delete 是刪除動作；0 指資料完全移除後的儲存成本，軟刪除保留資料、版本或快照仍可能計費，也可能產生提前刪除費用。箭頭為概念順序，實際轉層與刪除依 Lifecycle 規則設定。<a href="https://learn.microsoft.com/en-us/azure/storage/blobs/access-tiers-overview">官方說明</a></p><figure><button type="button" class="image-open" aria-label="放大圖片 3" aria-haspopup="dialog"><img src="../assets/images/azure-storage/azure_storage_03.png" alt="alt text" loading="lazy"></button></figure><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az storage account management-policy show \
+  --subscription &quot;az-104&quot; \
+  --resource-group &quot;rg-az104-foundation-lab&quot; \
+  --account-name &quot;staz104lab002d36&quot; \
+  --query &quot;policy.rules[].{
+    Name:name,
+    Enabled:enabled,
+    Actions:definition.actions,
+    Filters:definition.filters
+  }&quot; \
+  --output yaml
+</code></pre></div><h3 id="step-9">9. 設定 Blob 資料保護</h3><figure><button type="button" class="image-open" aria-label="放大圖片 4" aria-haspopup="dialog"><img src="../assets/images/azure-storage/azure_storage_04.png" alt="alt text" loading="lazy"></button></figure><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az storage account blob-service-properties show \
+  --subscription &quot;az-104&quot; \
+  --resource-group &quot;rg-az104-foundation-lab&quot; \
+  --account-name &quot;staz104lab002d36&quot; \
+  --query &quot;{
+    BlobSoftDelete:deleteRetentionPolicy,
+    ContainerSoftDelete:containerDeleteRetentionPolicy,
+    Versioning:isVersioningEnabled
+  }&quot; \
+  --output yaml
+</code></pre></div><h3 id="step-10">10. 測試 Blob Soft Delete</h3><p>刪除</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az storage blob delete \
+  --account-name &quot;staz104lab002d36&quot; \
+  --container-name &quot;private-lab&quot; \
+  --name &quot;az104-blob-lab.txt&quot; \
+  --auth-mode login \
+  --output none
+</code></pre></div><p>恢復</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az storage blob undelete \
+  --account-name &quot;staz104lab002d36&quot; \
+  --container-name &quot;private-lab&quot; \
+  --name &quot;az104-blob-lab.txt&quot; \
+  --auth-mode login \
+  --output none
+</code></pre></div><h3 id="step-11">11. 建立 Azure Files 的 SMB file share</h3><p><strong>SMB：</strong>透過網路共享檔案／資料夾。</p><pre class="concept-diagram" aria-label="Azure Files SMB 共用結構">Azure Files
+   │
+   │ 使用 SMB 協定
+   ↓
+File Share
+   │
+   ├─ VM A
+   ├─ VM B
+   └─ App C</pre><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az storage share-rm create \
+  --subscription &quot;az-104&quot; \
+  --resource-group &quot;rg-az104-foundation-lab&quot; \
+  --storage-account &quot;staz104lab002d36&quot; \
+  --name &quot;share1&quot; \
+  --quota 5 \
+  --access-tier TransactionOptimized \
+  --enabled-protocols SMB \
+  --output table
+</code></pre></div><h3 id="step-12">12. 把 Azure Files 資料權限限定在 share1，然後使用 Entra ID 上傳檔案</h3><ol class="explanation"><li>建立 Azure Files 的 File Share，名稱：<code>share1</code>（上一步）。</li><li>檢查 <code>share1</code> 是否有指派需要的 RBAC Role；此例檢查 <code>Storage File Data Privileged Contributor</code>。</li><li><code>--auth-mode login</code>：使用目前 <code>az login</code> 登入的 Microsoft Entra ID 身分做驗證。</li></ol><p class="note">下方 CLI 上傳／下載使用 FileREST；前一步結構圖示範的是 SMB 共用存取。</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>USER_ID=$(az ad signed-in-user show \
+  --query id \
+  --output tsv)
+
+SHARE_SCOPE=&quot;/subscriptions/d2ecddbd-2855-485d-8b5e-c7f26b75e3a6/resourceGroups/rg-az104-foundation-lab/providers/Microsoft.Storage/storageAccounts/staz104lab002d36/fileServices/default/fileshares/share1&quot;
+
+az role assignment list \
+  --subscription &quot;az-104&quot; \
+  --assignee &quot;$USER_ID&quot; \
+  --scope &quot;$SHARE_SCOPE&quot; \
+  --include-inherited \
+  --query &quot;[?roleDefinitionName==&#x27;Storage File Data Privileged Contributor&#x27;].{
+    Role:roleDefinitionName,
+    Scope:scope,
+    Principal:principalId
+  }&quot; \
+  --output table
+</code></pre></div><p>Upload</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az storage file upload \
+  --subscription &quot;az-104&quot; \
+  --account-name &quot;staz104lab002d36&quot; \
+  --share-name &quot;share1&quot; \
+  --source &quot;/tmp/az104-file-share-lab.txt&quot; \
+  --path &quot;az104-file-share-lab.txt&quot; \
+  --auth-mode login \
+  --enable-file-backup-request-intent \
+  --output table
+</code></pre></div><p>Download</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az storage file download \
+  --subscription &quot;az-104&quot; \
+  --account-name &quot;staz104lab002d36&quot; \
+  --share-name &quot;share1&quot; \
+  --path &quot;az104-file-share-lab.txt&quot; \
+  --dest &quot;/tmp/az104-file-share-downloaded.txt&quot; \
+  --auth-mode login \
+  --enable-file-backup-request-intent \
+  --output none
+</code></pre></div><h3 id="step-13">13. Azure Files 的「時間點復原」</h3><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>SNAPSHOT_TIME=$(az storage share-rm snapshot \
+  --subscription &quot;az-104&quot; \
+  --resource-group &quot;rg-az104-foundation-lab&quot; \
+  --storage-account &quot;staz104lab002d36&quot; \
+  --name &quot;share1&quot; \
+  --query snapshotTime \
+  --output tsv)
+
+printf &#x27;SNAPSHOT_TIME=&lt;%s&gt;\n&#x27; &quot;$SNAPSHOT_TIME&quot;
+</code></pre></div><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az storage file list \
+  --account-name &quot;staz104lab002d36&quot; \
+  --share-name &quot;share1&quot; \
+  --snapshot &quot;$SNAPSHOT_TIME&quot; \
+  --auth-mode login \
+  --enable-file-backup-request-intent \
+  --query &quot;[].{Name:name, Size:properties.contentLength}&quot; \
+  --output table
+</code></pre></div><hr><h2 id="section-3">Firewall</h2><h3 id="step-14">14. 建立 firewall, 並封鎖</h3><pre class="concept-diagram" aria-label="Storage 網路存取方式">預設
+Storage → Public Endpoint
+
+VNet + Service Endpoint
+→ 允許指定 Subnet 存取
+→ 搭配 Firewall 才能封鎖其他來源
+
+Private Endpoint
+→ 透過 VNet 內的 Private IP 存取 Storage</pre><p class="note">Service Endpoint 仍使用 Storage 的 Public Endpoint。Private Endpoint 不會自動停用公用存取，需另外設定；本節實作 Service Endpoint + Firewall。<a href="https://learn.microsoft.com/en-us/azure/storage/common/storage-network-security-overview">官方說明</a></p><ol class="explanation"><li>建立 VNet、Subnet，並替 Subnet 啟用 Storage Service Endpoint。</li><li>啟動 Storage Firewall：<code>--default-action Deny</code>。</li><li>添加 allowlist：<code>az storage account network-rule add</code>。</li></ol><p class="note">下方命令先加入允許清單，再設定 Deny，讓允許來源在切換時已就緒。</p><p>建立 vnet</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>SUBSCRIPTION_ID=&quot;d2ecddbd-2855-485d-8b5e-c7f26b75e3a6&quot;
+LAB_RG=&quot;rg-az104-foundation-lab&quot;
+LAB_LOCATION=&quot;eastasia&quot;
+STORAGE_ACCOUNT=&quot;staz104lab002d36&quot;
+
+VNET_NAME=&quot;vnet-az104-storage-lab&quot;
+SUBNET_NAME=&quot;snet-storage&quot;
+
+az network vnet create \
+  --subscription &quot;$SUBSCRIPTION_ID&quot; \
+  --resource-group &quot;$LAB_RG&quot; \
+  --name &quot;$VNET_NAME&quot; \
+  --location &quot;$LAB_LOCATION&quot; \
+  --address-prefixes &quot;10.20.0.0/16&quot; \
+  --subnet-name &quot;$SUBNET_NAME&quot; \
+  --subnet-prefixes &quot;10.20.1.0/24&quot; \
+  --tags purpose=az104-learning environment=lab \
+  --output none
+</code></pre></div><p>替 Subnet 啟用 Storage service endpoint</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az network vnet subnet update \
+  --subscription &quot;$SUBSCRIPTION_ID&quot; \
+  --resource-group &quot;$LAB_RG&quot; \
+  --vnet-name &quot;$VNET_NAME&quot; \
+  --name &quot;$SUBNET_NAME&quot; \
+  --service-endpoints Microsoft.Storage \
+  --output none
+</code></pre></div><p>取得 Subnet ID，加入 Storage firewall 允許清單</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>SUBNET_ID=$(az network vnet subnet show \
+  --subscription &quot;$SUBSCRIPTION_ID&quot; \
+  --resource-group &quot;$LAB_RG&quot; \
+  --vnet-name &quot;$VNET_NAME&quot; \
+  --name &quot;$SUBNET_NAME&quot; \
+  --query id \
+  --output tsv)
+
+az storage account network-rule add \
+  --subscription &quot;$SUBSCRIPTION_ID&quot; \
+  --resource-group &quot;$LAB_RG&quot; \
+  --account-name &quot;$STORAGE_ACCOUNT&quot; \
+  --subnet &quot;$SUBNET_ID&quot; \
+  --output none
+</code></pre></div><p>設定封鎖</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az storage account update \
+  --subscription &quot;d2ecddbd-2855-485d-8b5e-c7f26b75e3a6&quot; \
+  --resource-group &quot;rg-az104-foundation-lab&quot; \
+  --name &quot;staz104lab002d36&quot; \
+  --default-action Deny \
+  --output none
+</code></pre></div><h3 id="step-15">15. IP allowlist</h3><p>添加 allowlist</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>MY_IP=$(curl --silent --show-error https://api.ipify.org)
+echo &quot;$MY_IP&quot;
+
+az storage account network-rule add \
+  --subscription &quot;d2ecddbd-2855-485d-8b5e-c7f26b75e3a6&quot; \
+  --resource-group &quot;rg-az104-foundation-lab&quot; \
+  --account-name &quot;staz104lab002d36&quot; \
+  --ip-address &quot;$MY_IP&quot; \
+  --output none
+</code></pre></div><h2 id="section-4">停用 Shared Key，強制使用 Microsoft Entra ID／RBAC</h2><h3 id="step-16">16. 避免使用權限過大的 Storage account key</h3><p>Storage Firewall：目前 IP 在 allowlist
+Entra ID/RBAC：具有 Storage Blob Data Contributor</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az storage account update \
+  --subscription &quot;d2ecddbd-2855-485d-8b5e-c7f26b75e3a6&quot; \
+  --resource-group &quot;rg-az104-foundation-lab&quot; \
+  --name &quot;staz104lab002d36&quot; \
+  --allow-shared-key-access false \
+  --output none
+</code></pre></div><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az storage blob list \
+  --account-name &quot;staz104lab002d36&quot; \
+  --container-name &quot;private-lab&quot; \
+  --auth-mode login \
+  --query &quot;[].name&quot; \
+  --output table
+</code></pre></div><h2 id="section-5">Azure Policy</h2><p>Azure Policy 是把治理規則託管給 Azure，讓 Azure Policy 引擎持續檢查與管理資源是否符合規範</p><p class="note">公司不希望每個工程師都自己決定資源怎麼建，可以直接用 Policy 統一限制，例如限制可部署的區域或允許的資源類型。</p><h3 id="step-17">17. 使用 ARM REST API 建立 Policy Assignment</h3><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az rest \
+  --method put \
+  --url &quot;https://management.azure.com/subscriptions/d2ecddbd-2855-485d-8b5e-c7f26b75e3a6/resourceGroups/rg-az104-foundation-lab/providers/Microsoft.Authorization/policyAssignments/audit-storage-no-shared-key?api-version=2025-11-01&quot; \
+  --headers &quot;Content-Type=application/json&quot; \
+  --body &#x27;{
+    &quot;properties&quot;: {
+      &quot;displayName&quot;: &quot;Audit storage accounts that allow Shared Key&quot;,
+      &quot;description&quot;: &quot;AZ-104 governance lab: audit Storage accounts that allow Shared Key authorization&quot;,
+      &quot;policyDefinitionId&quot;: &quot;/providers/Microsoft.Authorization/policyDefinitions/8c6a50c6-9ffd-4ae7-986f-5fa6111f9a54&quot;,
+      &quot;parameters&quot;: {
+        &quot;effect&quot;: {
+          &quot;value&quot;: &quot;Audit&quot;
+        }
+      },
+      &quot;enforcementMode&quot;: &quot;Default&quot;
+    }
+  }&#x27; \
+  --output none
+</code></pre></div><h3 id="step-18">18. policy 評估</h3><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az provider register \
+  --subscription &quot;d2ecddbd-2855-485d-8b5e-c7f26b75e3a6&quot; \
+  --namespace Microsoft.PolicyInsights \
+  --wait
+
+az policy state trigger-scan \
+  --subscription &quot;d2ecddbd-2855-485d-8b5e-c7f26b75e3a6&quot; \
+  --resource-group &quot;rg-az104-foundation-lab&quot; \
+  --no-wait
+
+az policy state list \
+  --subscription &quot;d2ecddbd-2855-485d-8b5e-c7f26b75e3a6&quot; \
+  --resource-group &quot;rg-az104-foundation-lab&quot; \
+  --policy-assignment &quot;audit-storage-no-shared-key&quot; \
+  --query &quot;[].{
+    Resource:resourceId,
+    Compliance:complianceState,
+    PolicyAction:policyDefinitionAction,
+    EvaluatedAt:timestamp
+  }&quot; \
+  --output yaml
+</code></pre></div><h3 id="step-19">19. AzCopy</h3><p>專門大量上傳、下載與同步 Blob／Azure Files，比 az storage blob upload 更適合資料搬移。</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>export AZCOPY_AUTO_LOGIN_TYPE=&quot;AZCLI&quot;
+export AZCOPY_TENANT_ID=&quot;8f95ce8f-cb0b-42da-a633-ec918f72a2af&quot;
+
+printf &#x27;AZ-104 AzCopy lab\n&#x27; &gt; /tmp/az104-azcopy-lab.txt
+
+azcopy copy \
+  &quot;/tmp/az104-azcopy-lab.txt&quot; \
+  &quot;https://staz104lab002d36.blob.core.windows.net/private-lab/az104-azcopy-lab.txt&quot;
+
+azcopy list \
+  &quot;https://staz104lab002d36.blob.core.windows.net/private-lab&quot;
+</code></pre></div><h3 id="step-20">20. Storage redundancy</h3><p>LRS、ZRS、GRS、GZRS</p><div class="code-block"><div class="code-toolbar"><span>CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code></code></pre></div></main></div><div class="copy-status" role="status" aria-live="polite"></div><dialog class="image-dialog" aria-labelledby="image-dialog-title"><div class="image-dialog-header"><h2 id="image-dialog-title">圖片預覽</h2><button type="button" class="image-close" autofocus>關閉 ×</button></div><div class="image-dialog-body"><img alt=""></div></dialog><script>
+const status = document.querySelector('.copy-status');
+let statusTimer;
+function fallbackCopy(text) {
+  const field = document.createElement('textarea');
+  field.value = text;
+  field.style.cssText = 'position:fixed;left:-9999px;top:0';
+  document.body.append(field);
+  field.select();
+  let copied = false;
+  try { copied = document.execCommand('copy'); } finally { field.remove(); }
+  if (!copied) throw new Error('Copy unavailable');
+}
+document.querySelectorAll('.copy-button').forEach(button => {
+  button.addEventListener('click', async () => {
+    const text = button.closest('.code-block').querySelector('code').textContent;
+    try {
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+        await navigator.clipboard.writeText(text);
+      } catch { fallbackCopy(text); }
+      button.textContent = '已複製';
+      status.textContent = '程式碼已複製';
+      setTimeout(() => { button.textContent = '複製'; }, 1800);
+    } catch {
+      status.textContent = '無法自動複製，請選取程式碼後複製。';
+    }
+    button.focus({preventScroll:true});
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(() => { status.textContent = ''; }, 3000);
+  });
+});
+function syncNavigation() {
+  document.querySelectorAll('.subnav a, .intro-link').forEach(link => {
+    const active = link.hash === location.hash;
+    if (active) { link.setAttribute('aria-current', 'location'); const group = link.closest('details'); if (group) group.open = true; }
+    else link.removeAttribute('aria-current');
+  });
+}
+window.addEventListener('hashchange', syncNavigation);
+syncNavigation();
+
+const imageDialog = document.querySelector('.image-dialog');
+const enlargedImage = imageDialog.querySelector('img');
+let imageTrigger = null;
+document.querySelectorAll('.image-open').forEach((button, index) => {
+  button.addEventListener('click', () => {
+    imageTrigger = button;
+    const source = button.querySelector('img');
+    enlargedImage.src = source.src;
+    enlargedImage.alt = source.alt;
+    document.querySelector('#image-dialog-title').textContent = `圖片 ${index + 1}`;
+    imageDialog.showModal();
+    imageDialog.querySelector('.image-dialog-body').scrollTo(0, 0);
+    document.body.classList.add('image-modal-open');
+  });
+});
+imageDialog.querySelector('.image-close').addEventListener('click', () => imageDialog.close());
+let backdropPress = false;
+imageDialog.addEventListener('pointerdown', event => {
+  const rect = imageDialog.getBoundingClientRect();
+  backdropPress = event.target === imageDialog && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom);
+});
+imageDialog.addEventListener('click', event => {
+  const rect = imageDialog.getBoundingClientRect();
+  if (backdropPress && event.target === imageDialog && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) imageDialog.close();
+  backdropPress = false;
+});
+imageDialog.addEventListener('close', () => {
+  document.body.classList.remove('image-modal-open');
+  enlargedImage.removeAttribute('src');
+  imageTrigger?.focus({preventScroll:true});
+});
+</script></body></html>

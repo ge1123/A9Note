@@ -34,3 +34,7 @@ Azure 認證學習筆記、實作 labs 與驗證紀錄。完整筆記保存在 r
 ```
 
 資料夾使用穩定的主題名稱，Issue 編號記錄在文件內。既有學習大綱是規劃，完成筆記與實作後才補上結果；不要把建立檔案當作完成學習。
+
+## 學習網站與 GitHub Pages
+
+網站總入口原始碼為 [site/index.html](site/index.html)，目前收錄 AZ-104。各認證網站保留在各自的 `site/` 目錄，由 GitHub Actions 組合成 `_site/` 後發布；操作方式與新增認證步驟見 [網站維護說明](site/README.md)。

@@ -8,6 +8,10 @@ GitHub 學習追蹤從 [AZ-104 Microsoft Azure Administrator 學習路線](https
 
 完整筆記、來源與驗證結果記錄於本目錄；Issues 負責目標、進度與討論。其他認證請見 [學習入口](../README.md)。
 
+## 學習網站
+
+[AZ-104 網站入口](site/index.html)目前提供 Azure Storage 主題；[網站維護說明](site/README.md)記錄目錄與連結慣例。
+
 ## 筆記與實作入口
 
 以下為待學習骨架，依既有 Issues 整理；尚未填入實際學習成果。

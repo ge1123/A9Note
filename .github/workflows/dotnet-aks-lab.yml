@@ -1,0 +1,97 @@
+name: Deploy .NET AKS lab (manual)
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dotnet-aks-lab
+  cancel-in-progress: false
+
+env:
+  LAB_PATH: AZ-104-Azure Administrator/compute/containers/labs/dotnet-aks
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    environment: aks-lab
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+      AKS_NAME: ${{ vars.AKS_NAME }}
+      ACR_NAME: ${{ vars.ACR_NAME }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Check configuration
+        shell: bash
+        run: |
+          set -euo pipefail
+          : "${AZURE_SUBSCRIPTION_ID:?Set environment variable}"
+          : "${AZURE_RESOURCE_GROUP:?Set environment variable}"
+          : "${AKS_NAME:?Set environment variable}"
+          : "${ACR_NAME:?Set environment variable}"
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - uses: azure/setup-kubectl@v4
+        with:
+          version: v1.35.0
+      - uses: azure/use-kubelogin@v1
+        with:
+          kubelogin-version: v0.2.12
+      - uses: docker/setup-buildx-action@v3
+      - name: Resolve registry and login
+        id: registry
+        shell: bash
+        run: |
+          set -euo pipefail
+          server=$(az acr show --subscription "$AZURE_SUBSCRIPTION_ID" --resource-group "$AZURE_RESOURCE_GROUP" --name "$ACR_NAME" --query loginServer -o tsv)
+          echo "server=$server" >> "$GITHUB_OUTPUT"
+          az acr login --subscription "$AZURE_SUBSCRIPTION_ID" --name "$ACR_NAME"
+      - name: Build and push AMD64 image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ env.LAB_PATH }}
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.registry.outputs.server }}/lab-api:${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Deploy immutable image
+        shell: bash
+        env:
+          IMAGE: ${{ steps.registry.outputs.server }}/lab-api@${{ steps.build.outputs.digest }}
+        run: |
+          set -euo pipefail
+          export KUBECONFIG="$RUNNER_TEMP/aks-config"
+          az aks get-credentials --subscription "$AZURE_SUBSCRIPTION_ID" --resource-group "$AZURE_RESOURCE_GROUP" --name "$AKS_NAME" --file "$KUBECONFIG"
+          kubelogin convert-kubeconfig -l azurecli
+          python3 - <<'PYCODE'
+          import os
+          from pathlib import Path
+          source = Path(os.environ['LAB_PATH'], 'k8s/app.yaml').read_text()
+          source = source.replace('__IMAGE__', os.environ['IMAGE']).replace('__VERSION__', os.environ['GITHUB_SHA'])
+          Path(os.environ['RUNNER_TEMP'], 'app.yaml').write_text(source)
+          PYCODE
+          kubectl apply -f "$RUNNER_TEMP/app.yaml"
+          kubectl rollout status deployment/lab-api -n dotnet-lab --timeout=300s
+          kubectl get deployment,pods,hpa -n dotnet-lab
+          kubectl port-forward -n dotnet-lab service/lab-api 18080:80 > "$RUNNER_TEMP/port-forward.log" 2>&1 &
+          forward_pid=$!
+          trap 'kill "$forward_pid" 2>/dev/null || true' EXIT
+          curl --retry 20 --retry-connrefused --retry-delay 2 --fail http://127.0.0.1:18080/health/ready
+          curl --fail http://127.0.0.1:18080/info > "$RUNNER_TEMP/info.json"
+          python3 - <<'PYCODE'
+          import json, os
+          from pathlib import Path
+          info = json.loads(Path(os.environ['RUNNER_TEMP'], 'info.json').read_text())
+          assert info['version'] == os.environ['GITHUB_SHA'], info
+          PYCODE
+          echo "Deployed $IMAGE; rollout and HTTP smoke checks passed." >> "$GITHUB_STEP_SUMMARY"

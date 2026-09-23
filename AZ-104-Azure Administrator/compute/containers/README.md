@@ -29,6 +29,8 @@
 
 ## 相關筆記與 Labs
 
+- [.NET API、ACR、Bicep 與 AKS lab](labs/dotnet-aks/README.md)：手動 workflow；Azure runtime 待驗證。
+
 - [[AZ-104][3.2.12] Lab 09c：Azure Container Apps](labs/lab-09c/README.md)
 - [[AZ-104][3.2.11] Lab 09b：Azure Container Instances](labs/lab-09b/README.md)
 

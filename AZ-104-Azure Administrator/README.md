@@ -14,6 +14,8 @@ GitHub 學習追蹤從 [AZ-104 Microsoft Azure Administrator 學習路線](https
 
 ## 筆記與實作入口
 
+- [.NET API → ACR → AKS lab](compute/containers/labs/dotnet-aks/README.md)：Dockerfile、Bicep、Kubernetes 與手動部署 workflow；Azure runtime 待驗證。
+
 - [Hub／Spoke + Web Load Balancer 互動式 lab](networking/labs/hub-spoke-web/README.md)：以互動式 shell 啟動 Bicep，包含配額檢查、預覽、部署、HTTP 驗收與清理；Azure runtime 待驗證。
 
 以下為待學習骨架，依既有 Issues 整理；尚未填入實際學習成果。

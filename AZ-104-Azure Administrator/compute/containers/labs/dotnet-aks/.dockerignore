@@ -1,0 +1,6 @@
+**/bin
+**/obj
+.git
+infra
+k8s
+README.md

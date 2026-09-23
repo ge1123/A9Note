@@ -10,9 +10,11 @@ GitHub 學習追蹤從 [AZ-104 Microsoft Azure Administrator 學習路線](https
 
 ## 學習網站
 
-[AZ-104 網站入口](site/index.html)目前提供 Azure Storage 主題；[網站維護說明](site/README.md)記錄目錄與連結慣例。
+[AZ-104 網站入口](site/index.html)目前提供 [Azure Storage](site/topics/azure-storage.html) 與 [Azure Networking](site/topics/azure-networking.html) 主題；[網站維護說明](site/README.md)記錄目錄與連結慣例。
 
 ## 筆記與實作入口
+
+- [Hub／Spoke + Web Load Balancer 互動式 lab](networking/labs/hub-spoke-web/README.md)：以互動式 shell 啟動 Bicep，包含配額檢查、預覽、部署、HTTP 驗收與清理；Azure runtime 待驗證。
 
 以下為待學習骨架，依既有 Issues 整理；尚未填入實際學習成果。
 

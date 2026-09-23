@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AZ-104 · Azure Networking 實作筆記</title><meta name="description" content="AZ-104 Azure Networking 實作筆記"><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23006cce'/%3E%3Cpath d='M8 10h16v4H8zm0 8h16v4H8z' fill='white'/%3E%3C/svg%3E"><style>
+:root{color-scheme:light;--ink:#172b43;--muted:#60748a;--blue:#006cce;--line:#dce5ee;--paper:#fff;--bg:#f3f6fa}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:32px}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.85 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Microsoft JhengHei",sans-serif}a{color:inherit}.layout{max-width:1440px;margin:auto;display:grid;grid-template-columns:280px minmax(0,1fr);gap:56px;padding:48px 48px 100px}aside{position:sticky;top:40px;align-self:start}.brand{color:var(--blue);font-size:14px;letter-spacing:.14em;font-weight:750}.title{font-size:28px;line-height:1.35;margin:12px 0 32px;letter-spacing:-.03em}nav{display:grid;gap:6px}nav a{text-decoration:none;display:flex;align-items:baseline;gap:12px;padding:12px 10px;border-radius:6px;line-height:1.6;font-size:14px;border-left:2px solid transparent}nav a:hover,nav a:focus-visible{background:#e5eef9;color:var(--blue);border-left-color:var(--blue)}nav span{font:12px ui-monospace,monospace;color:var(--muted)}main{min-width:0;background:white;border:1px solid var(--line);border-top:4px solid var(--blue);padding:40px 48px 60px;box-shadow:0 8px 32px #1b355008}.flow{white-space:pre-wrap;text-align:center;padding:24px;background:#edf5ff;border:1px solid #d3e6fc;border-radius:8px;font-size:16px;line-height:1.85;color:#174975}h2{font-size:25px;line-height:1.5;letter-spacing:-.025em;margin:52px 0 26px;padding-bottom:14px;border-bottom:1px solid var(--line)}h3{font-size:18px;line-height:1.7;margin:32px 0 12px;color:#123b64;overflow-wrap:anywhere}p{white-space:pre-wrap;margin:12px 0 18px;overflow-wrap:anywhere}pre{background:#11243a;color:#e0edfa;padding:22px 24px;border-radius:8px;overflow:auto;font:14px/1.8 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;tab-size:2;margin:18px 0 26px;border:1px solid #213951}code{font:inherit}figure{margin:24px 0 36px;padding:8px;border:1px solid var(--line);border-radius:8px;background:#f8fafc}img{display:block;max-width:100%;height:auto;margin:auto}hr{border:0;border-top:1px solid var(--line);margin:44px 0}a:focus-visible{outline:3px solid #006cce;outline-offset:3px}.skip{position:absolute;left:16px;top:-100px;background:white;padding:10px;z-index:2}.skip:focus{top:12px}@media(max-width:1050px){.layout{padding:28px;gap:28px;grid-template-columns:220px minmax(0,1fr)}main{padding:28px}.title{font-size:24px}}@media(max-width:760px){.layout{display:block;padding:20px 14px 50px}aside{position:static;margin-bottom:24px}.title{margin:8px 0 16px}nav{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}nav a{padding:8px;font-size:14px}main{padding:22px 16px}h2{font-size:22px}pre{padding:18px 16px}h3{font-size:18px}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}@media print{body{background:white}.layout{display:block;padding:0}aside,.skip{display:none}main{border:0;box-shadow:none;padding:0}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f6fa;color:#172b43;break-inside:avoid}img{max-height:80vh}h2,h3{break-after:avoid}}
+
+aside{max-height:calc(100vh - 80px);overflow-y:auto;padding-right:6px}.title{font-size:25px;margin-bottom:28px}.topic-label{font-size:15px;font-weight:700;border-top:1px solid var(--line);padding:20px 10px 12px;color:var(--blue)}nav{display:block}.nav-group{margin:4px 0}.nav-group summary{cursor:pointer;list-style:none;display:flex;gap:10px;align-items:baseline;font-size:14px;padding:12px 10px;line-height:1.6;border-radius:6px}.nav-group summary::-webkit-details-marker{display:none}.nav-group summary::after{content:'+';margin-left:auto;flex-shrink:0;color:var(--blue)}.nav-group[open]>summary{background:#e5eef9;color:var(--blue)}.nav-group[open]>summary::after{content:'−'}.subnav{margin:8px 0 14px 17px;padding-left:10px;border-left:1px solid #c8d8e8}.subnav a{display:block;font-size:14px;padding:7px 9px;overflow-wrap:anywhere}.subnav a[aria-current="location"]{background:#e5eef9;color:var(--blue);border-left-color:var(--blue)}.subnav .section-link{color:var(--muted)}summary:focus-visible,button:focus-visible{outline:3px solid var(--blue);outline-offset:3px}.flow-panel{border:1px solid #d3e6fc;border-radius:8px;background:#f4f8ff;margin-bottom:30px}.flow-panel>summary{cursor:pointer;padding:14px 18px;font-weight:650;color:#174975}.flow-panel>summary span{font-weight:400;color:var(--muted);font-size:14px;margin-left:10px}.flow-steps{list-style:none;counter-reset:flow;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0;padding:8px 18px 18px}.flow-steps li{counter-increment:flow;background:white;border:1px solid #dce7f4;padding:12px;font-size:14px;line-height:1.6;overflow-wrap:anywhere;border-radius:6px}.flow-steps li::before{content:counter(flow,decimal-leading-zero);display:block;font:12px/1.5 ui-monospace,monospace;color:var(--blue);margin-bottom:6px}.code-block{margin:18px 0 26px;border-radius:8px;overflow:hidden;background:#11243a;border:1px solid #213951}.code-toolbar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;border-bottom:1px solid #314458;color:#a9bdd2;font:12px/1.5 ui-monospace,monospace}.copy-button{font:14px/1.5 inherit;font-family:inherit;font-size:14px;color:#e0edfa;background:#263e58;border:1px solid #486079;border-radius:5px;padding:5px 12px;cursor:pointer;min-height:34px}.copy-button:hover{background:#365674}.code-block pre{margin:0;border:0;border-radius:0}.copy-status{position:fixed;bottom:24px;right:24px;z-index:5;background:#173b60;color:white;padding:10px 18px;border-radius:8px;box-shadow:0 4px 24px #11243a22}.copy-status:empty{display:none}@media(max-width:760px){aside{max-height:none;overflow:visible}.flow-steps{grid-template-columns:repeat(2,minmax(0,1fr))}.title{font-size:24px;margin-bottom:12px}.topic-label{padding-top:12px}}@media(max-width:420px){.flow-steps{grid-template-columns:1fr}}@media print{.code-toolbar,.copy-status{display:none}.code-block{border:0;background:none}.flow-panel{display:none}}
+
+.intro>h2{margin-top:0}.intro-number{font:14px ui-monospace,monospace;color:var(--blue);margin-right:8px}.flow-lines{padding:18px 22px;border-left:3px solid var(--blue);background:#f4f8ff;border-radius:0 6px 6px 0}.flow-row{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 0}.flow-row+.flow-row{margin-top:14px}.flow-item{display:inline-flex;align-items:baseline;gap:12px;max-width:100%;font-size:16px;line-height:1.9}.flow-item>span:first-child{overflow-wrap:anywhere}.flow-arrow{color:var(--blue);padding-right:12px;flex-shrink:0}.intro-link{margin:4px 0}.intro-link[aria-current="location"]{background:#e5eef9;color:var(--blue);border-left-color:var(--blue)}@media(max-width:760px){.flow-lines{padding:14px 16px}.flow-row+.flow-row{margin-top:12px}}@media print{.flow-lines{background:white}}
+
+.image-open{display:block;width:100%;padding:0;border:0;background:transparent;cursor:zoom-in;border-radius:4px}.image-open:focus-visible{outline:3px solid var(--blue);outline-offset:4px}.image-dialog{width:96vw;max-width:1800px;max-height:94vh;padding:0;border:1px solid #52677d;border-radius:10px;background:#fff;color:var(--ink);box-shadow:0 20px 90px #0006}.image-dialog::backdrop{background:rgba(9,22,38,.8)}.image-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:12px 18px;border-bottom:1px solid var(--line)}.image-dialog-header h2{font-size:16px;line-height:1.5;margin:0;padding:0;border:0}.image-close{font:inherit;font-size:14px;min-height:40px;padding:6px 16px;background:#edf5ff;border:1px solid #b8cde5;border-radius:6px;color:#174975;cursor:pointer}.image-dialog-body{overflow:auto;max-height:calc(94vh - 76px);padding:12px}.image-dialog-body img{width:100%;max-width:none;height:auto;margin:0}body.image-modal-open{overflow:hidden}@media print{.image-dialog{display:none}}
+.home-link{display:inline-block;color:var(--blue);font-size:14px;text-decoration:none;margin-bottom:20px}.home-link:hover{text-decoration:underline}
+.flow-stage{display:grid;grid-template-columns:3em minmax(0,1fr);gap:16px;align-items:baseline}.flow-stage+.flow-stage{border-top:1px solid #d3e6fc;margin-top:14px;padding-top:14px}.flow-stage strong{color:var(--blue)}.flow-stage div{overflow-wrap:anywhere}.note{font-size:14px;color:#425b73;background:#f4f8ff;border-left:3px solid #b8cde5;padding:12px 16px}.note a{color:var(--blue)}.concept-diagram{background:#f4f8ff;color:#174975;border-color:#d3e6fc}.reference-table{width:100%;border-collapse:collapse;margin:18px 0 22px;font-size:15px}.reference-table th,.reference-table td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line)}.reference-table thead{background:#edf5ff;color:#174975}.reference-table tbody th{font-weight:500}.explanation{padding-left:24px}.explanation li{margin:8px 0;overflow-wrap:anywhere}.brand{margin-bottom:20px}@media(max-width:420px){.flow-stage{grid-template-columns:1fr;gap:4px}.reference-table th,.reference-table td{padding:8px}}
+.network-roles li{margin:16px 0}.network-roles strong{color:#123b64}.page-title{font-size:30px;line-height:1.4;margin:0 0 12px}figcaption{font-size:13px;text-align:center;color:var(--muted);padding:8px}li{overflow-wrap:anywhere}main>ul,main>ol{padding-left:26px}main li{margin:6px 0}</style></head><body><a class="skip" href="#content">跳至內容</a><div class="layout"><aside><a class="home-link" href="../index.html">← 所有主題</a><div class="brand">AZ-104</div><div class="topic-label">Azure Networking</div><nav aria-label="章節導覽"><a class="intro-link" href="#overview">導讀</a><details class="nav-group"><summary><span>00</span>前置檢查</summary><div class="subnav"><a class="section-link" href="#section-0">章節開頭</a></div></details><details class="nav-group"><summary><span>01</span>Resource group</summary><div class="subnav"><a class="section-link" href="#section-1">章節開頭</a></div></details><details class="nav-group"><summary><span>02</span>VNet 與 subnets</summary><div class="subnav"><a class="section-link" href="#section-2">章節開頭</a><a href="#step-1">2.1 Hub VNet 與 Web subnet</a><a href="#step-2">2.2 App subnet</a><a href="#step-3">2.3 Spoke VNet</a></div></details><details class="nav-group"><summary><span>03</span>雙向 VNet peering</summary><div class="subnav"><a class="section-link" href="#section-3">章節開頭</a></div></details><details class="nav-group"><summary><span>04</span>NSG 與 ASG</summary><div class="subnav"><a class="section-link" href="#section-4">章節開頭</a></div></details><details class="nav-group"><summary><span>05</span>User-defined route</summary><div class="subnav"><a class="section-link" href="#section-5">章節開頭</a></div></details><details class="nav-group"><summary><span>06</span>Storage service endpoint</summary><div class="subnav"><a class="section-link" href="#section-6">章節開頭</a></div></details><details class="nav-group"><summary><span>07</span>Compute quota gate</summary><div class="subnav"><a class="section-link" href="#section-7">章節開頭</a></div></details><details class="nav-group"><summary><span>08</span>本次已執行但未完成 runtime 驗證的計費路徑</summary><div class="subnav"><a class="section-link" href="#section-8">章節開頭</a><a href="#step-5">8.1 臨時 SSH key</a><a href="#step-6">8.2 Public IP 與 Load Balancer</a><a href="#step-7">8.3 Health probe、inbound rule 與 outbound rule</a><a href="#step-8">8.4 NIC</a><a href="#step-9">8.5 VM 命令修正與實際失敗</a><a href="#step-10">8.6 安裝 nginx</a></div></details><details class="nav-group"><summary><span>09</span>驗收</summary><div class="subnav"><a class="section-link" href="#section-9">章節開頭</a></div></details></nav></aside><main id="content"><section class="intro" aria-labelledby="overview"><h1 id="overview" class="page-title">Azure Networking</h1><p>VNet、流量控管與 Load Balancer 實作筆記</p><pre class="concept-diagram" aria-label="核心流量路徑">Internet → Public IP → Load Balancer → NIC → VM
+                                      │
+                                      └→ Subnet → VNet</pre><div class="flow-lines" aria-label="學習流程"><div class="flow-stage"><strong>建置</strong><div>Resource Group → VNet / Subnets → 雙向 Peering</div></div><div class="flow-stage"><strong>控管</strong><div>NSG / ASG → UDR → Storage Service Endpoint</div></div><div class="flow-stage"><strong>部署</strong><div>Quota gate → Public IP → Load Balancer → NIC → VM</div></div><div class="flow-stage"><strong>驗收</strong><div>nginx → 驗收紀錄</div></div></div>
+<h2 id="networking-summary">心得總結</h2>
+<ol class="network-roles">
+<li><strong>外部流量進入 VM</strong><br>Internet → Load Balancer 的 Public IP → 後端 NIC 私有 IP → VM。</li>
+<li><strong>網路分區、互連與放行</strong><br>使用 VNet / Subnet 分區，透過 Peering 互連不同 VNet，並設定 NSG 規則控制流量放行。</li>
+<li><strong>指定流量先經過 Firewall</strong><br>設定 UDR，把符合目的網段的流量導向 Firewall 的私有 IP，再由 Firewall 檢查與放行。</li>
+<li><strong>限制 PaaS 服務接受哪些 Subnet 的連線</strong><br>在來源 Subnet 啟用 Service Endpoint，讓支援的服務辨識來源網路，並搭配服務端的網路規則限制允許的 Subnet。</li>
+</ol>
+</section>
+<h2 id="section-0">0. 前置檢查</h2>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az login
+</code></pre></div>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az account show \
+  --query &#39;{subscription:name,state:state,user:user.name}&#39; \
+  --output table
+
+export AZ104_RG=&quot;rg-az104-issue16-mvp&quot;
+export AZ104_LOCATION=&quot;eastasia&quot;
+
+az group exists --name &quot;$AZ104_RG&quot;
+</code></pre></div>
+<p>只有最後一個命令回傳 <code>false</code> 時才建立 resource group，避免修改同名既有資源。</p>
+<h2 id="section-1">1. Resource group</h2>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az group create \
+  --name &quot;$AZ104_RG&quot; \
+  --location &quot;$AZ104_LOCATION&quot; \
+  --tags purpose=az104-learning issue=16 cleanup=required \
+  --query &#39;{name:name,location:location,state:properties.provisioningState}&#39; \
+  --output table
+</code></pre></div>
+<figure><button type="button" class="image-open" aria-label="放大圖片 1" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_01.png" alt="Azure Networking 實作紀錄 1" loading="lazy"></button><figcaption>實作紀錄 1</figcaption></figure>
+<h2 id="section-2">2. VNet 與 subnets</h2>
+<p>Hub-and-spoke 是一種網路架構。</p>
+<p>如果各個後端分別管理對外連線，就需要各自設定哪些 Domain、Port、IP 可以通，也要各自記錄連線。採用 Hub 並將流量導向其中的 Firewall 後，就可以集中設定規則與記錄連線。</p>
+<pre class="concept-diagram" aria-label="VNet 隔離與 Peering">VNet A 10.16.0.0/16  ✕  VNet B 10.17.0.0/16
+VNet A  ← Peering →  VNet B</pre>
+<pre class="concept-diagram" aria-label="Azure Network 架構">Azure Network
+│
+├─ VNet: vnet-issue16-hub        10.16.0.0/16
+│  │
+│  ├─ Subnet: snet-web           10.16.1.0/24
+│  │    └─ NIC
+│  │        └─ Web VM
+│  │
+│  └─ Subnet: snet-app           10.16.2.0/24
+│       └─ App / Backend
+│
+│          VNet Peering
+│               │
+│               ▼
+└─ VNet: vnet-issue16-spoke      10.17.0.0/16
+   │
+   └─ Subnet: snet-workload      10.17.1.0/24
+        └─ Workload</pre>
+<h3 id="step-1">2.1 Hub VNet 與 Web subnet</h3>
+<p><code>az network vnet create</code> 的回傳結構不保證包含可用的 <code>newSubnet</code> 查詢結果，因此建立與驗證分開執行。</p>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az network vnet create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --location &quot;$AZ104_LOCATION&quot; \
+  --name &quot;vnet-issue16-hub&quot; \
+  --address-prefixes &quot;10.16.0.0/16&quot; \
+  --subnet-name &quot;snet-web&quot; \
+  --subnet-prefixes &quot;10.16.1.0/24&quot; \
+  --output none
+
+az network vnet subnet list \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --vnet-name &quot;vnet-issue16-hub&quot; \
+  --query &#39;[].{name:name,prefix:addressPrefix,state:provisioningState}&#39; \
+  --output table
+</code></pre></div>
+<p>本次建立輸出中的 subnet 欄位曾顯示 <code>null</code>，但後續唯讀查詢確認 <code>snet-web</code> 已成功建立；不能只用單一 CLI 回傳欄位判定資源不存在。</p>
+<h3 id="step-2">2.2 App subnet</h3>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az network vnet subnet create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --vnet-name &quot;vnet-issue16-hub&quot; \
+  --name &quot;snet-app&quot; \
+  --address-prefixes &quot;10.16.2.0/24&quot; \
+  --query &#39;{name:name,prefix:addressPrefix,state:provisioningState}&#39; \
+  --output table
+</code></pre></div>
+<figure><button type="button" class="image-open" aria-label="放大圖片 2" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_02.png" alt="Azure Networking 實作紀錄 2" loading="lazy"></button><figcaption>實作紀錄 2</figcaption></figure>
+<h3 id="step-3">2.3 Spoke VNet</h3>
+<p>Hub 的 <code>10.16.0.0/16</code> 與 Spoke 的 <code>10.17.0.0/16</code> 不重疊，符合 peering 前提。</p>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az network vnet create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --location &quot;$AZ104_LOCATION&quot; \
+  --name &quot;vnet-issue16-spoke&quot; \
+  --address-prefixes &quot;10.17.0.0/16&quot; \
+  --subnet-name &quot;snet-workload&quot; \
+  --subnet-prefixes &quot;10.17.1.0/24&quot; \
+  --output none
+
+az network vnet show \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --name &quot;vnet-issue16-spoke&quot; \
+  --query &#39;{name:name,addressSpace:addressSpace.addressPrefixes,subnets:subnets[].{name:name,prefix:addressPrefix},state:provisioningState}&#39; \
+  --output json
+</code></pre></div>
+<figure><button type="button" class="image-open" aria-label="放大圖片 3" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_03.png" alt="Azure Networking 實作紀錄 3" loading="lazy"></button><figcaption>實作紀錄 3</figcaption></figure>
+<h2 id="section-3">3. 雙向 VNet peering</h2>
+<p>先取得兩個 VNet 的 resource ID，不把完整 ID 寫入文件：</p>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>export AZ104_HUB_ID=&quot;$(
+  az network vnet show \
+    --resource-group &quot;$AZ104_RG&quot; \
+    --name &quot;vnet-issue16-hub&quot; \
+    --query id \
+    --output tsv
+)&quot;
+
+export AZ104_SPOKE_ID=&quot;$(
+  az network vnet show \
+    --resource-group &quot;$AZ104_RG&quot; \
+    --name &quot;vnet-issue16-spoke&quot; \
+    --query id \
+    --output tsv
+)&quot;
+</code></pre></div>
+<p>建立 Hub 到 Spoke。只有一個方向時，本次觀察到狀態為 <code>Initiated</code>：</p>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az network vnet peering create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --vnet-name &quot;vnet-issue16-hub&quot; \
+  --name &quot;peer-hub-to-spoke&quot; \
+  --remote-vnet &quot;$AZ104_SPOKE_ID&quot; \
+  --allow-vnet-access \
+  --query &#39;{name:name,state:peeringState,access:allowVirtualNetworkAccess}&#39; \
+  --output table
+</code></pre></div>
+<figure><button type="button" class="image-open" aria-label="放大圖片 4" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_04.png" alt="Azure Networking 實作紀錄 4" loading="lazy"></button><figcaption>實作紀錄 4</figcaption></figure>
+<p>建立反方向：</p>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az network vnet peering create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --vnet-name &quot;vnet-issue16-spoke&quot; \
+  --name &quot;peer-spoke-to-hub&quot; \
+  --remote-vnet &quot;$AZ104_HUB_ID&quot; \
+  --allow-vnet-access \
+  --query &#39;{name:name,state:peeringState,access:allowVirtualNetworkAccess}&#39; \
+  --output table
+</code></pre></div>
+<figure><button type="button" class="image-open" aria-label="放大圖片 5" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_05.png" alt="Azure Networking 實作紀錄 5" loading="lazy"></button><figcaption>實作紀錄 5</figcaption></figure>
+<p>兩端都必須驗證為 <code>Connected</code>：</p>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az network vnet peering list \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --vnet-name &quot;vnet-issue16-hub&quot; \
+  --query &#39;[].{vnet:`hub`,name:name,state:peeringState}&#39; \
+  --output table
+
+az network vnet peering list \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --vnet-name &quot;vnet-issue16-spoke&quot; \
+  --query &#39;[].{vnet:`spoke`,name:name,state:peeringState}&#39; \
+  --output table
+</code></pre></div>
+<figure><button type="button" class="image-open" aria-label="放大圖片 6" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_06.png" alt="Azure Networking 實作紀錄 6" loading="lazy"></button><figcaption>實作紀錄 6</figcaption></figure>
+<p>控制平面的 <code>Connected</code> 不等於工作負載流量已驗證；本次沒有 VM runtime 證據。</p>
+<h2 id="section-4">4. NSG 與 ASG</h2>
+<ol class="network-roles">
+<li><strong>先分區 → VNet / Subnet</strong><br>例如：訂單、付款、會員 → 拆成不同 VNet / Subnet。</li>
+<li><strong>再接通 → Peering</strong><br>例如：訂單 VNet 要連付款 VNet → 建立 Peering。</li>
+<li><strong>決定流量走哪裡 → Route Table</strong><br>例如：所有後端連 Internet → 先導到 Hub Firewall。</li>
+<li><strong>決定哪些流量可以通 → NSG</strong><br>例如：Internet → Web VM → 只允許 TCP 80 / 443。</li>
+<li><strong>VM 太多先分組 → ASG</strong><br>例如：web01、web02、web03 → 將它們的 NIC 加入 asg-web，再讓 NSG 對 asg-web 設規則。</li>
+<li><strong>統一管理網路規則 → Firewall</strong><br>例如：訂單、付款、會員的 Internet 流量 → 都經過 Hub Firewall，統一管理 Domain、Port、IP 與連線 Log。</li>
+</ol>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az network asg create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --location &quot;$AZ104_LOCATION&quot; \
+  --name &quot;asg-web&quot; \
+  --tags purpose=az104-learning issue=16 \
+  --query &#39;{name:name,location:location,state:provisioningState}&#39; \
+  --output table
+
+az network nsg create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --location &quot;$AZ104_LOCATION&quot; \
+  --name &quot;nsg-web&quot; \
+  --tags purpose=az104-learning issue=16 \
+  --query &#39;{name:NewNSG.name,state:NewNSG.provisioningState}&#39; \
+  --output table
+
+az network nsg rule create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --nsg-name &quot;nsg-web&quot; \
+  --name &quot;Allow-HTTP-To-ASG&quot; \
+  --priority 100 \
+  --direction Inbound \
+  --access Allow \
+  --protocol Tcp \
+  --source-address-prefixes Internet \
+  --source-port-ranges &quot;*&quot; \
+  --destination-asgs &quot;asg-web&quot; \
+  --destination-port-ranges 80 \
+  --description &quot;Allow HTTP only to web ASG members&quot; \
+  --query &#39;{name:name,priority:priority,access:access,protocol:protocol,destinationAsgCount:length(destinationApplicationSecurityGroups),destinationPort:destinationPortRange,state:provisioningState}&#39; \
+  --output table
+</code></pre></div>
+<p>NSG 自訂規則 priority 的有效範圍從 <code>100</code> 開始；本次嘗試 <code>90</code> 時 Azure 正確拒絕。</p>
+<figure><button type="button" class="image-open" aria-label="放大圖片 7" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_07.png" alt="Azure Networking 實作紀錄 7" loading="lazy"></button><figcaption>實作紀錄 7</figcaption></figure>
+<p>將 NSG 關聯到 <code>snet-web</code>：</p>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az network vnet subnet update \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --vnet-name &quot;vnet-issue16-hub&quot; \
+  --name &quot;snet-web&quot; \
+  --network-security-group &quot;nsg-web&quot; \
+  --query &#39;{subnet:name,prefix:addressPrefix,nsgAttached:contains(networkSecurityGroup.id, `nsg-web`),state:provisioningState}&#39; \
+  --output table
+</code></pre></div>
+<figure><button type="button" class="image-open" aria-label="放大圖片 8" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_08.png" alt="Azure Networking 實作紀錄 8" loading="lazy"></button><figcaption>實作紀錄 8</figcaption></figure>
+<h2 id="section-5">5. User-defined route</h2>
+<p>UDR（User-defined route）是自訂路由，用來決定 Subnet 的流量要送去哪裡。</p>
+<p>在典型 Hub-and-Spoke 架構裡，通常靠 UDR 把 Spoke 的流量導到 Hub Firewall；如果沒有 UDR，流量不會因為有 Hub 就自動先經過 Hub Firewall。</p>
+<pre class="concept-diagram" aria-label="Spoke 對外流量路徑">Spoke → UDR → Hub Firewall → Internet</pre>
+<p>以下練習設定 <code>snet-app → 10.99.0.0/16 → None</code>，將前往該網段的流量丟棄。</p>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az network route-table create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --location &quot;$AZ104_LOCATION&quot; \
+  --name &quot;rt-app&quot; \
+  --disable-bgp-route-propagation false \
+  --tags purpose=az104-learning issue=16 \
+  --query &#39;{name:name,bgpPropagationDisabled:disableBgpRoutePropagation,state:provisioningState}&#39; \
+  --output table
+
+az network route-table route create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --route-table-name &quot;rt-app&quot; \
+  --name &quot;Block-Test-Network&quot; \
+  --address-prefix &quot;10.99.0.0/16&quot; \
+  --next-hop-type None \
+  --query &#39;{name:name,prefix:addressPrefix,nextHop:nextHopType,state:provisioningState}&#39; \
+  --output table
+
+az network vnet subnet update \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --vnet-name &quot;vnet-issue16-hub&quot; \
+  --name &quot;snet-app&quot; \
+  --route-table &quot;rt-app&quot; \
+  --query &#39;{subnet:name,prefix:addressPrefix,routeTableAttached:contains(routeTable.id, `rt-app`),state:provisioningState}&#39; \
+  --output table
+</code></pre></div>
+<figure><button type="button" class="image-open" aria-label="放大圖片 9" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_09.png" alt="Azure Networking 實作紀錄 9" loading="lazy"></button><figcaption>實作紀錄 9</figcaption></figure>
+<figure><button type="button" class="image-open" aria-label="放大圖片 10" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_10.png" alt="Azure Networking 實作紀錄 10" loading="lazy"></button><figcaption>實作紀錄 10</figcaption></figure>
+
+<h2 id="section-6">6. Storage service endpoint</h2>
+<p>Service Endpoint 讓支援的 Azure PaaS 服務認得來源 Subnet，並可搭配服務端的網路存取規則，限制哪些 Subnet 可以連線。</p>
+<pre class="concept-diagram" aria-label="Service Endpoint 連線示意">Subnet → Service Endpoint → Azure Storage / Azure SQL / ACR</pre>
+<p>不是所有 Azure 服務都支援 Service Endpoint；各服務的支援範圍與限制，請參考 <a href="https://learn.microsoft.com/en-us/azure/virtual-network/virtual-network-service-endpoints-overview">Microsoft 官方文件</a>。</p>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az network vnet subnet update \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --vnet-name &quot;vnet-issue16-hub&quot; \
+  --name &quot;snet-app&quot; \
+  --service-endpoints Microsoft.Storage \
+  --query &#39;{subnet:name,serviceEndpoints:serviceEndpoints[].service,state:provisioningState}&#39; \
+  --output json
+</code></pre></div>
+<figure><button type="button" class="image-open" aria-label="放大圖片 11" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_11.png" alt="Azure Networking 實作紀錄 11" loading="lazy"></button><figcaption>實作紀錄 11</figcaption></figure>
+<p>這只證明 subnet 已啟用 <code>Microsoft.Storage</code> service endpoint。它不會自動修改 Storage Account firewall，也不等於 Private Endpoint。</p>
+<h2 id="section-7">7. Compute quota gate</h2>
+<p>所有會計費的 VM、Public IP 與 Load Balancer 資源，都必須在 quota gate 通過後才建立。</p>
+<p>VM 規格有提供，但你的訂用帳戶在 East Asia 的 Basv2 配額是 0，所以無法建立 VM。
+處理過程：</p>
+<ol>
+<li>註冊 Microsoft.Quota：讓 Azure 可以查詢及申請配額。</li>
+<li>註冊 Microsoft.Compute：讓訂用帳戶可以使用及顯示 VM 配額。</li>
+<li>在 Portal 找到：<ul>
+<li>Standard Basv2 Family vCPUs</li>
+<li>Region：East Asia</li>
+<li>目前配額：0</li>
+</ul>
+</li>
+<li>申請新配額：2。
+申請及持有配額不收費；只有成功建立 VM 後才開始產生 VM 費用。
+<figure><button type="button" class="image-open" aria-label="放大圖片 12" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_12.png" alt="Azure Networking 實作紀錄 12" loading="lazy"></button><figcaption>實作紀錄 12</figcaption></figure>
+<figure><button type="button" class="image-open" aria-label="放大圖片 13" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_13.png" alt="Azure Networking 實作紀錄 13" loading="lazy"></button><figcaption>實作紀錄 13</figcaption></figure></li>
+</ol>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>export AZ104_VM_SIZE=&quot;Standard_B2ats_v2&quot;
+
+az vm list-skus \
+  --location &quot;$AZ104_LOCATION&quot; \
+  --resource-type virtualMachines \
+  --size &quot;$AZ104_VM_SIZE&quot; \
+  --all \
+  --query &quot;[?name==&#39;$AZ104_VM_SIZE&#39;].{name:name,restrictionReasons:restrictions[].reasonCode}&quot; \
+  --output json
+
+az vm list-usage \
+  --location &quot;$AZ104_LOCATION&quot; \
+  --query &quot;[?name.value==&#39;standardBasv2Family&#39;].{name:name.localizedValue,current:currentValue,limit:limit}&quot; \
+  --output table
+</code></pre></div>
+<figure><button type="button" class="image-open" aria-label="放大圖片 14" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_14.png" alt="Azure Networking 實作紀錄 14" loading="lazy"></button><figcaption>實作紀錄 14</figcaption></figure>
+<h2 id="section-8">8. 本次已執行但未完成 runtime 驗證的計費路徑</h2>
+<p>以下資源在發現 quota 問題前曾成功建立，用來驗證 Load Balancer 控制平面設定；它們已在本次 cleanup 中刪除。未來只有 quota gate 通過時才執行。</p>
+<h3 id="step-5">8.1 臨時 SSH key</h3>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>export AZ104_TEMP_DIR=&quot;$(mktemp -d /tmp/az104-issue16.XXXXXX)&quot;
+
+ssh-keygen \
+  -t ed25519 \
+  -f &quot;$AZ104_TEMP_DIR/id_ed25519&quot; \
+  -N &quot;&quot; \
+  -C &quot;az104-issue16&quot;
+</code></pre></div>
+<p>私鑰只放在 <code>/tmp</code>，不得提交 repository。</p>
+<h3 id="step-6">8.2 Public IP 與 Load Balancer</h3>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az network public-ip create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --location &quot;$AZ104_LOCATION&quot; \
+  --name &quot;pip-issue16-lb&quot; \
+  --sku Standard \
+  --allocation-method Static \
+  --version IPv4 \
+  --tags purpose=az104-learning issue=16 \
+  --query &#39;{name:publicIp.name,sku:publicIp.sku.name,allocation:publicIp.publicIPAllocationMethod,state:publicIp.provisioningState}&#39; \
+  --output table
+
+az network lb create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --location &quot;$AZ104_LOCATION&quot; \
+  --name &quot;lb-issue16-web&quot; \
+  --sku Standard \
+  --public-ip-address &quot;pip-issue16-lb&quot; \
+  --frontend-ip-name &quot;fe-public&quot; \
+  --backend-pool-name &quot;be-web&quot; \
+  --tags purpose=az104-learning issue=16 \
+  --output none
+</code></pre></div>
+<figure><button type="button" class="image-open" aria-label="放大圖片 15" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_15.png" alt="Azure Networking 實作紀錄 15" loading="lazy"></button><figcaption>實作紀錄 15</figcaption></figure>
+<h3 id="step-7">8.3 Health probe、inbound rule 與 outbound rule</h3>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az network lb probe create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --lb-name &quot;lb-issue16-web&quot; \
+  --name &quot;hp-http&quot; \
+  --protocol Http \
+  --port 80 \
+  --path &quot;/&quot; \
+  --interval 5 \
+  --threshold 2 \
+  --query &#39;{name:name,protocol:protocol,port:port,path:requestPath,interval:intervalInSeconds,threshold:numberOfProbes,state:provisioningState}&#39; \
+  --output table
+
+az network lb rule create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --lb-name &quot;lb-issue16-web&quot; \
+  --name &quot;rule-http&quot; \
+  --protocol Tcp \
+  --frontend-ip-name &quot;fe-public&quot; \
+  --frontend-port 80 \
+  --backend-pool-name &quot;be-web&quot; \
+  --backend-port 80 \
+  --probe-name &quot;hp-http&quot; \
+  --idle-timeout 4 \
+  --enable-tcp-reset true \
+  --disable-outbound-snat true \
+  --query &#39;{name:name,protocol:protocol,frontendPort:frontendPort,backendPort:backendPort,probeConfigured:contains(probe.id, `hp-http`),outboundSnatDisabled:disableOutboundSnat,state:provisioningState}&#39; \
+  --output table
+
+az network lb outbound-rule create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --lb-name &quot;lb-issue16-web&quot; \
+  --name &quot;outbound-web&quot; \
+  --protocol All \
+  --frontend-ip-configs &quot;fe-public&quot; \
+  --address-pool &quot;be-web&quot; \
+  --outbound-ports 1024 \
+  --idle-timeout 4 \
+  --query &#39;{name:name,protocol:protocol,ports:allocatedOutboundPorts,frontendConfigured:contains(frontendIPConfigurations[0].id, `fe-public`),backendConfigured:contains(backendAddressPool.id, `be-web`),state:provisioningState}&#39; \
+  --output table
+</code></pre></div>
+<figure><button type="button" class="image-open" aria-label="放大圖片 16" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_16.png" alt="Azure Networking 實作紀錄 16" loading="lazy"></button><figcaption>實作紀錄 16</figcaption></figure>
+<h3 id="step-8">8.4 NIC</h3>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az network nic create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --location &quot;$AZ104_LOCATION&quot; \
+  --name &quot;nic-web01&quot; \
+  --vnet-name &quot;vnet-issue16-hub&quot; \
+  --subnet &quot;snet-web&quot; \
+  --private-ip-address &quot;10.16.1.4&quot; \
+  --lb-name &quot;lb-issue16-web&quot; \
+  --lb-address-pools &quot;be-web&quot; \
+  --application-security-groups &quot;asg-web&quot; \
+  --tags purpose=az104-learning issue=16 \
+  --output none
+
+az network nic show \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --name &quot;nic-web01&quot; \
+  --query &#39;{name:name,privateAllocation:ipConfigurations[0].privateIPAllocationMethod,backendPoolCount:length(ipConfigurations[0].loadBalancerBackendAddressPools),asgCount:length(ipConfigurations[0].applicationSecurityGroups),state:provisioningState}&#39; \
+  --output table
+</code></pre></div>
+<figure><button type="button" class="image-open" aria-label="放大圖片 17" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_17.png" alt="Azure Networking 實作紀錄 17" loading="lazy"></button><figcaption>實作紀錄 17</figcaption></figure>
+<h3 id="step-9">8.5 VM 命令修正與實際失敗</h3>
+<p>目前 Azure CLI 使用 <code>--storage-sku</code>，不是 <code>--os-disk-sku</code>：</p>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az vm create \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --location &quot;$AZ104_LOCATION&quot; \
+  --name &quot;vm-web01&quot; \
+  --nics &quot;nic-web01&quot; \
+  --image &quot;Canonical:0001-com-ubuntu-server-jammy:22_04-lts-gen2:latest&quot; \
+  --size &quot;$AZ104_VM_SIZE&quot; \
+  --admin-username &quot;azureuser&quot; \
+  --authentication-type ssh \
+  --ssh-key-values &quot;$AZ104_TEMP_DIR/id_ed25519.pub&quot; \
+  --storage-sku Standard_LRS \
+  --os-disk-delete-option Delete \
+  --security-type Standard \
+  --tags purpose=az104-learning issue=16 \
+  --only-show-errors \
+  --output none
+</code></pre></div>
+<p>本次 ARM preflight 回傳 <code>QuotaExceeded</code>：East Asia 的 <code>standardBasv2Family</code> limit 為 0，部署需要 2 cores。Preflight 失敗後用下列命令確認沒有留下 VM 或 managed disk：</p>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az resource list \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --query &quot;[?starts_with(type, &#39;Microsoft.Compute/&#39;)].{name:name,type:type}&quot; \
+  --output table
+</code></pre></div>
+<p>結果沒有任何資料列。Azure CLI 額外顯示的 <code>The content for this response was already consumed</code> 是處理原始 ARM 錯誤時的次要例外，不是根因。</p>
+<h3 id="step-10">8.6 安裝 nginx</h3>
+<div class="code-block"><div class="code-toolbar"><span>Bash · Azure CLI</span><button type="button" class="copy-button" aria-label="複製程式碼">複製</button></div><pre><code>az vm run-command invoke \
+  --resource-group &quot;$AZ104_RG&quot; \
+  --name &quot;vm-web01&quot; \
+  --command-id RunShellScript \
+  --scripts &#39;apt-get update &amp;&amp; apt-get install -y nginx &amp;&amp; printf &quot;vm-web01\n&quot; &gt; /var/www/html/index.html &amp;&amp; systemctl enable --now nginx&#39; \
+  --query &#39;value[0].message&#39; \
+  --output tsv
+</code></pre></div>
+<figure><button type="button" class="image-open" aria-label="放大圖片 18" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_18.png" alt="Azure Networking 實作紀錄 18" loading="lazy"></button><figcaption>實作紀錄 18</figcaption></figure>
+<h2 id="section-9">9 驗收</h2>
+<figure><button type="button" class="image-open" aria-label="放大圖片 19" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_19.png" alt="Azure Networking 實作紀錄 19" loading="lazy"></button><figcaption>實作紀錄 19</figcaption></figure>
+<figure><button type="button" class="image-open" aria-label="放大圖片 20" aria-haspopup="dialog"><img src="../assets/images/azure-networking/azure_networking_20.png" alt="Azure Networking 實作紀錄 20" loading="lazy"></button><figcaption>實作紀錄 20</figcaption></figure>
+</main></div><div class="copy-status" role="status" aria-live="polite"></div><dialog class="image-dialog" aria-labelledby="image-dialog-title"><div class="image-dialog-header"><h2 id="image-dialog-title">圖片預覽</h2><button type="button" class="image-close" autofocus>關閉 ×</button></div><div class="image-dialog-body"><img alt=""></div></dialog><script>
+const status = document.querySelector('.copy-status');
+let statusTimer;
+function fallbackCopy(text) {
+  const field = document.createElement('textarea');
+  field.value = text;
+  field.style.cssText = 'position:fixed;left:-9999px;top:0';
+  document.body.append(field);
+  field.select();
+  let copied = false;
+  try { copied = document.execCommand('copy'); } finally { field.remove(); }
+  if (!copied) throw new Error('Copy unavailable');
+}
+document.querySelectorAll('.copy-button').forEach(button => {
+  button.addEventListener('click', async () => {
+    const text = button.closest('.code-block').querySelector('code').textContent;
+    try {
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+        await navigator.clipboard.writeText(text);
+      } catch { fallbackCopy(text); }
+      button.textContent = '已複製';
+      status.textContent = '程式碼已複製';
+      setTimeout(() => { button.textContent = '複製'; }, 1800);
+    } catch {
+      status.textContent = '無法自動複製，請選取程式碼後複製。';
+    }
+    button.focus({preventScroll:true});
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(() => { status.textContent = ''; }, 3000);
+  });
+});
+function syncNavigation() {
+  document.querySelectorAll('.subnav a, .intro-link').forEach(link => {
+    const active = link.hash === location.hash;
+    if (active) { link.setAttribute('aria-current', 'location'); const group = link.closest('details'); if (group) group.open = true; }
+    else link.removeAttribute('aria-current');
+  });
+}
+window.addEventListener('hashchange', syncNavigation);
+syncNavigation();
+
+const imageDialog = document.querySelector('.image-dialog');
+const enlargedImage = imageDialog.querySelector('img');
+let imageTrigger = null;
+document.querySelectorAll('.image-open').forEach((button, index) => {
+  button.addEventListener('click', () => {
+    imageTrigger = button;
+    const source = button.querySelector('img');
+    enlargedImage.src = source.src;
+    enlargedImage.alt = source.alt;
+    document.querySelector('#image-dialog-title').textContent = `圖片 ${index + 1}`;
+    imageDialog.showModal();
+    imageDialog.querySelector('.image-dialog-body').scrollTo(0, 0);
+    document.body.classList.add('image-modal-open');
+  });
+});
+imageDialog.querySelector('.image-close').addEventListener('click', () => imageDialog.close());
+let backdropPress = false;
+imageDialog.addEventListener('pointerdown', event => {
+  const rect = imageDialog.getBoundingClientRect();
+  backdropPress = event.target === imageDialog && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom);
+});
+imageDialog.addEventListener('click', event => {
+  const rect = imageDialog.getBoundingClientRect();
+  if (backdropPress && event.target === imageDialog && (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom)) imageDialog.close();
+  backdropPress = false;
+});
+imageDialog.addEventListener('close', () => {
+  document.body.classList.remove('image-modal-open');
+  enlargedImage.removeAttribute('src');
+  imageTrigger?.focus({preventScroll:true});
+});
+</script></body></html>

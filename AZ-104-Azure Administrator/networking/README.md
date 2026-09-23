@@ -37,6 +37,8 @@
 
 ## 相關筆記與 Labs
 
+- [Hub／Spoke + Web Load Balancer 互動式 Bicep lab](labs/hub-spoke-web/README.md)：已建立自動化檔案，Azure runtime 待驗證。
+
 - [[AZ-104][3.2.5] Lab 04：Implement Virtual Networking](labs/lab-04/README.md)
 - [[AZ-104][3.2.6] Lab 05：Implement Intersite Connectivity](labs/lab-05/README.md)
 - [[AZ-104][3.2.7] Lab 06：Network Traffic Management](labs/lab-06/README.md)
